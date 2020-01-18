@@ -1,13 +1,18 @@
 const express = require('express');
+const mongoose = require('mongoose');
 
 const app = express();
 
-app.get('/', (request, response) => {
-    return response.json({
-        nome: "Diego",
-        sobrenome: "Santos",
-        idade: 15
-    });
+
+
+
+app.use(express.json());
+
+
+app.post('/users', (request, response) => {
+    console.log(request.body);
+    
+    return response.json({message: "Hello World"});
 });
 
 
