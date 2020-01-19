@@ -5,132 +5,44 @@ import './App.css';
 import './Sidebar.css';
 import './Main.css';
 
-
+import DevForm from './components/DevForm';
+import DevItem from './components/DevItems';
 
 
 function App() {
-  const [github_username, setGithubUsername] = useState('');
-  const [techs, setTechs] = useState('');
+  const [devs, setDevs] = useState([]);
 
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  useEffect(() => {
+    async function loadDevs(){
+      const response = await api.get('/devs');
 
+      setDevs(response.data);
+    }
+    loadDevs();
+  }, [])
 
-  useEffect(() =>{
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        
-        setLatitude(latitude);
-        setLongitude(longitude);
-      },
-      (err) => {
-        console.log(err)
-      },
-      {
-        timeout: 30000,
-      },
-    );
-  }, [] )
+  async function handleAddDev(data){
 
-  async function handleAddDev(event){
-    event.preventDefault();
-
-    const response = await api.post('/devs', {
-      github_username,
-      techs,
-      latitude,
-      longitude,
-    })
-    console.log(response.data)
+    const response = await api.post('/devs', data)
+    
+    setDevs([...devs, response.data]);
   }
+
 
   return (
     <div id="app">
       <aside>
         <strong>Cadastar</strong>
-        <form onSubmit={handleAddDev}>
-          <div className="input-block">
-            <label htmlFor="github_username">Usuário do Github</label>
-            <input name="github_username" 
-              id="github_username" 
-              required
-              value={github_username}
-              onChange={e => setGithubUsername(e.target.value)}
-            />
-          </div>
-
-          <div className="input-block">
-            <label htmlFor="techs">Técnologias</label>
-            <input 
-              name="techs" 
-              id="techs" 
-              required
-              value={techs}
-              onChange={e => setTechs(e.target.value)}
-            />
-          </div>
+        <DevForm onSubmit={handleAddDev} />
 
 
-          <div className="input-group">
-            <div className="input-block">
-              <label htmlFor="latitude">Latitude</label>
-              <input 
-                type="number" 
-                name="latitude" 
-                id="latitude" 
-                required 
-                value={latitude}
-                onChange={e => setLatitude(e.target.value)}
-              />
-            </div> 
-
-            <div className="input-block">
-              <label htmlFor="longitude">Longitude</label>
-              <input 
-                type="number" 
-                name="longitude" 
-                id="longitude" 
-                required 
-                value={longitude}
-                onChange={e => setLongitude(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <button type="submit">Salvar</button>
-        </form>
       </aside>
 
       <main>
         <ul>
-          <li className="dev-item">
-            <header>
-              <img src="https://avatars2.githubusercontent.com/u/39443535?s=460&v=4" alt="Diego Santos"/>
-              <div className="user-info">
-                <strong>Diego Santos</strong>
-                <span>ReactJS, NodeJS, JavaScript</span>
-              </div>
-            </header>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, exercitationem. Delectus quidem, facilis eaque nam rem, vero esse nihil.</p>
-            <a href="https://github.com/diego15055">
-              Acessar perfil no Github
-            </a>
-          </li>
-
-          
-
-
-
-
-
-
-
-
-
-
-
-
+          {devs.map(dev => (
+            <DevItem key={dev._id} dev={dev} />
+          ))}
         </ul>
       </main>
 
